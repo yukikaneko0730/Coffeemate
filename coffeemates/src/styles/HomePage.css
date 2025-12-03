@@ -1,0 +1,219 @@
+/* =========================================================
+   HOME PAGE — Figma-flat & clean style
+========================================================= */
+
+.home-main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+  background: #f5f2eb; /* Figma の柔らかいベージュ */
+}
+
+/* ---------------------------------------------------------
+   Header
+--------------------------------------------------------- */
+.home-hero {
+  margin-bottom: 32px;
+}
+
+.home-kicker {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #998;
+  margin-bottom: 4px;
+}
+
+.home-title {
+  font-size: 26px;
+  margin: 0 0 6px;
+}
+
+.home-subtitle {
+  font-size: 13px;
+  margin: 0;
+  color: #666;
+}
+
+/* =========================================================
+   MAP section
+========================================================= */
+
+.home-map-section {
+  margin-bottom: 32px;
+}
+
+.home-map__placeholder {
+  width: 100%;
+  height: 320px;
+  border-radius: 12px;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  background: #fff;
+}
+
+/* ===========================
+   SUGGESTIONS — horizontal row
+=========================== */
+
+.home-suggestions-section {
+  margin: 32px 0 24px;
+}
+
+.home-suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.home-suggestions-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.home-suggestions-seeall {
+  border: none;
+  background: none;
+  font-size: 12px;
+  color: #315efb;
+  cursor: pointer;
+}
+
+/* Horizontal 3-column layout */
+.home-suggestions-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+
+/* =========================================================
+   Friend search bar (Figma-style)
+========================================================= */
+
+.home-search-section {
+  margin: 32px 0 24px;
+}
+
+.home-search-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* bar */
+.home-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 12px 18px;
+
+  border-radius: 999px;
+  border: 1px solid #cfcfcf;
+  background: #ffffff;
+
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03); /* ほんのり縁取り */
+}
+
+/* icon */
+.home-search-bar__icon {
+  font-size: 16px;
+  color: #8c8c8c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* text */
+.home-search-bar__input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.home-search-bar__input::placeholder {
+  color: #a3a3a3;
+}
+
+.home-feed-section {
+  margin-top: 24px;
+}
+
+/* =========================================================
+   FEED (only FeedPostCard has card style)
+========================================================= */
+
+.home-feed-section {
+  margin-top: 16px;
+}
+
+.home-tabs-header {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+
+  margin-top: 20px;      
+  margin-bottom: 20px;   
+  padding: 8px 0;       
+}
+
+
+.home-tab-button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  color: #999;
+  padding: 4px 0;
+}
+
+.home-tab-button--active {
+  color: #222;
+  font-weight: 600;
+}
+
+.home-tab-button::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: #222;
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+.home-tab-button--active::after {
+  width: 60%;
+}
+
+.home-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home-post-list--animated {
+  animation: fadeUp 240ms ease-out;
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,43 @@
+/* =========================================
+   Global base styles
+========================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    Arial, sans-serif;
+  background: #f3f0e8; /* 全体のキャンバス色だけここで指定 */
+  color: #222;
+}
+
+/* =========================================
+   App shell (sidebar + content)
+========================================= */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  animation: contentFadeIn 480ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* Content fade-in animation */
+@keyframes contentFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,28 @@
+/* AppShell: sidebar + main area */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f3f0e8; 
+}
+
+/* left */
+.app-shell__sidebar {
+  width: 245px;
+  flex-shrink: 0;
+  border-right: 1px solid #e5e0d4;
+  background: #ffffff;
+}
+
+/* right */
+.app-shell__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* HomePage  */
+.home-main {
+  padding: 32px 40px 48px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
