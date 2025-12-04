@@ -1,25 +1,40 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import "../styles/AuthLayout.css";
 
 const LoginPage: React.FC = () => {
-  const [useId, setUseId] = useState(false);
-  const [credential, setCredential] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // default values for the demo account (Mia)
+  const [email, setEmail] = useState("mia@example.com");
+  const [password, setPassword] = useState("coffee-mia");
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("login", {
-      mode: useId ? "id" : "email",
-      credential,
-      password,
-    });
-    // TODO: Firebase login
+    setErrorMsg(null);
+    setLoading(true);
+
+    try {
+      // Firebase Auth login (email + password)
+      await login(email, password);
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setErrorMsg("Could not sign in. Please check your email and password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-layout">
-      {/* Left sidebar */}
+      {/* left sidebar */}
       <aside className="auth-sidebar">
         <div className="auth-sidebar__logo">Coffeemates</div>
         <div className="auth-sidebar__avatar">
@@ -27,10 +42,10 @@ const LoginPage: React.FC = () => {
             👤
           </span>
         </div>
-        <div className="auth-sidebar__welcome">Welcome!</div>
+        <div className="auth-sidebar__welcome">Welcome back!</div>
       </aside>
 
-      {/* Right area */}
+      {/* right side main area */}
       <main className="auth-main">
         <div className="auth-main__bg" />
 
@@ -38,49 +53,30 @@ const LoginPage: React.FC = () => {
           <section className="auth-card">
             <h1 className="auth-card__title">Coffeemates</h1>
             <p className="auth-card__subtitle">
-              Connect, sip, and share your brew.
+              Log in and see what your coffeemates are sipping.
             </p>
 
-            {/* Buttons */}
-            <div className="auth-card__top-buttons">
-              <button
-                className="auth-btn-outline"
-                onClick={() => setUseId(false)}
-              >
-                Sign up with Email
-              </button>
-
-              <button
-                className="auth-btn-outline"
-                onClick={() => setUseId(true)}
-              >
-                ID
-              </button>
-            </div>
-
-            {/* Sign-in section */}
             <div className="auth-form-section">
-              <h2 className="auth-form-section__title">Sign-in</h2>
+              <h2 className="auth-form-section__title">Login</h2>
 
               <form className="auth-form" onSubmit={handleSubmit}>
-                {/* Email / ID input */}
+                {/* email */}
                 <div className="auth-field-group">
-                  <label className="auth-label" htmlFor="login-credential">
-                    {useId ? "ID" : "Email"}
+                  <label className="auth-label" htmlFor="login-email">
+                    Email
                   </label>
-
                   <input
-                    id="login-credential"
+                    id="login-email"
                     className="auth-input"
-                    type={useId ? "text" : "email"}
-                    placeholder={useId ? "Enter your ID" : "you@example.com"}
-                    value={credential}
-                    onChange={(e) => setCredential(e.target.value)}
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
 
-                {/* Password */}
+                {/* password */}
                 <div className="auth-field-group">
                   <label className="auth-label" htmlFor="login-password">
                     Password
@@ -89,19 +85,27 @@ const LoginPage: React.FC = () => {
                     id="login-password"
                     className="auth-input"
                     type="password"
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
 
-                <button type="submit" className="auth-btn-primary">
-                  Login
+                {errorMsg && <p className="auth-error">{errorMsg}</p>}
+
+                <button
+                  type="submit"
+                  className="auth-btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Signing in..." : "Sign in"}
                 </button>
               </form>
 
               <p className="auth-bottom-text">
-                Don’t have an account? <a href="/signup">Signup Here</a>
+                Don&apos;t have an account?{" "}
+                <Link to="/signup">Create one</Link>
               </p>
             </div>
           </section>

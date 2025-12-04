@@ -1,195 +1,147 @@
 // src/components/CreatePostModal.tsx
-import React, { useState, useEffect } from "react";
-import PlaceAutocompleteInput from "./PlaceAutocompleteInput";
+import React, { useState } from "react";
 import type { CreatePostFormValues } from "../types/postForm";
 import "../styles/CreatePostModal.css";
 
-
-type Props = {
+type CreatePostModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (values: CreatePostFormValues) => Promise<void> | void;
 };
 
-const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
-  const [title, setTitle] = useState("");
-  const [locationInput, setLocationInput] = useState("");
-  const [googlePlaceId, setGooglePlaceId] = useState("");
+const CreatePostModal: React.FC<CreatePostModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+}) => {
   const [cafeName, setCafeName] = useState("");
-  const [userRating, setUserRating] = useState(0);
   const [text, setText] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // reset when modal opens/closes
-  useEffect(() => {
-    if (!isOpen) return;
-    setTitle("");
-    setLocationInput("");
-    setGooglePlaceId("");
-    setCafeName("");
-    setUserRating(0);
-    setText("");
-    setImageFile(null);
-    setIsSubmitting(false);
-  }, [isOpen]);
+  const [rating, setRating] = useState("4.5");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleStarClick = (value: number) => {
-    setUserRating(value);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setImageFile(file);
-  };
-
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // close only when clicking on backdrop, not inside the card
-    if (e.target === e.currentTarget && !isSubmitting) {
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !submitting) {
       onClose();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!googlePlaceId) {
-      alert("Please select a location from suggestions.");
-      return;
-    }
-    if (!title.trim()) {
-      alert("Please enter a title.");
-      return;
-    }
+    setError(null);
 
-    setIsSubmitting(true);
+    const parsedRating = Number(rating);
+    if (Number.isNaN(parsedRating) || parsedRating < 0 || parsedRating > 5) {
+      setError("Rating must be between 0 and 5.");
+      return;
+    }
+    if (!cafeName.trim()) {
+      setError("Please enter a café name.");
+      return;
+    }
+    if (!text.trim()) {
+      setError("Please write something about the coffee.");
+      return;
+    }
 
     const values: CreatePostFormValues = {
-      title: title.trim(),
+      cafeName: cafeName.trim(),
       text: text.trim(),
-      userRating,
-      googlePlaceId,
-      cafeName,
-      imageFile,
+      rating: parsedRating,
     };
 
     try {
+      setSubmitting(true);
       await onSubmit(values);
+
+      // reset fields after success
+      setCafeName("");
+      setText("");
+      setRating("4.5");
       onClose();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create post.");
-      setIsSubmitting(false);
+    } catch (err) {
+      console.error(err);
+      setError("Could not publish your post. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal-card">
-        <button
-          className="modal-card__close"
-          onClick={onClose}
-          type="button"
-          disabled={isSubmitting}
-        >
-          ✕
-        </button>
+    <div className="cp-modal-backdrop" onClick={handleOverlayClick}>
+      <div className="cp-modal">
+        <header className="cp-modal__header">
+          <h2 className="cp-modal__title">New Coffeemates post</h2>
+          <button
+            type="button"
+            className="cp-modal__close"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            ×
+          </button>
+        </header>
 
-        <h2 className="modal-card__title">create new post</h2>
+        <form className="cp-modal__form" onSubmit={handleSubmit}>
+          <label className="cp-field">
+            <span className="cp-field__label">Café name</span>
+            <input
+              className="cp-input"
+              value={cafeName}
+              onChange={(e) => setCafeName(e.target.value)}
+              placeholder="Never Ending Love Story"
+              disabled={submitting}
+            />
+          </label>
 
-        <form className="modal-card__form" onSubmit={handleSubmit}>
-          <div className="modal-card__content">
-            {/* Left: image upload */}
-            <div className="modal-card__left">
-              <label className="upload-box">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  hidden
-                />
-                <div className="upload-box__inner">
-                  <div className="upload-box__icon">🖼</div>
-                  <div className="upload-box__text">
-                    Drag photos and videos here
-                    <br />
-                    or click to upload
-                  </div>
-                  {imageFile && (
-                    <div className="upload-box__filename">
-                      {imageFile.name}
-                    </div>
-                  )}
-                </div>
-              </label>
-            </div>
+          <label className="cp-field">
+            <span className="cp-field__label">Your thoughts</span>
+            <textarea
+              className="cp-textarea"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="How was the coffee, the vibe, the seats, the music..."
+              rows={4}
+              disabled={submitting}
+            />
+          </label>
 
-            {/* Right: form fields */}
-            <div className="modal-card__right">
-              <label className="modal-field">
-                <span className="modal-field__label">Title</span>
-                <input
-                  className="modal-field__input"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Cafe Berlin with Marie"
-                />
-              </label>
+          <label className="cp-field cp-field--inline">
+            <span className="cp-field__label">Rating</span>
+            <input
+              className="cp-input cp-input--small"
+              type="number"
+              min={0}
+              max={5}
+              step={0.1}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              disabled={submitting}
+            />
+            <span className="cp-field__hint">0–5</span>
+          </label>
 
-              <label className="modal-field">
-                <span className="modal-field__label">Location</span>
-                <PlaceAutocompleteInput
-                  value={locationInput}
-                  onChange={setLocationInput}
-                  onSelectPlace={(place) => {
-                    setGooglePlaceId(place.placeId);
-                    setCafeName(place.description);
-                  }}
-                />
-              </label>
+          {error && <p className="cp-error">{error}</p>}
 
-              <div className="modal-field">
-                <span className="modal-field__label">Stars</span>
-                <div className="modal-stars">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className={
-                        "modal-stars__star" +
-                        (userRating >= i ? " modal-stars__star--active" : "")
-                      }
-                      onClick={() => handleStarClick(i)}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <label className="modal-field">
-                <span className="modal-field__label">Memo</span>
-                <textarea
-                  className="modal-field__textarea"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  rows={5}
-                  placeholder="Write your thoughts about this cafe..."
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="modal-card__footer">
+          <footer className="cp-modal__footer">
+            <button
+              type="button"
+              className="cp-btn cp-btn--ghost"
+              onClick={onClose}
+              disabled={submitting}
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="modal-card__submit"
-              disabled={isSubmitting}
+              className="cp-btn cp-btn--primary"
+              disabled={submitting}
             >
-              {isSubmitting ? "Posting..." : "Post"}
+              {submitting ? "Publishing..." : "Publish"}
             </button>
-          </div>
+          </footer>
         </form>
       </div>
     </div>

@@ -7,7 +7,7 @@ import HomePage from "./pages/HomePage";
 import MessagesPage from "./pages/MessagesPage";
 import ProfilePage from "./pages/ProfilePage";
 import SavedPage from "./pages/SavedPage";
-import SettingsPage from "./pages/SettingsPage";  
+import SettingsPage from "./pages/SettingsPage";
 
 import CreatePostModal from "./components/CreatePostModal";
 import type { CreatePostFormValues } from "./types/postForm";
@@ -16,6 +16,9 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 
 import { CURRENT_USER } from "./mocks/mockUsers";
+
+import { db } from "./firebase/firebaseConfig";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 import "./styles/AppShell.css";
 
@@ -27,13 +30,33 @@ const App: React.FC = () => {
   const closePostModal = () => setIsPostModalOpen(false);
 
   const handleCreatePost = async (values: CreatePostFormValues) => {
-    console.log("New post submitted:", values);
+    const author = CURRENT_USER.profile;
+
+    try {
+      await addDoc(collection(db, "posts"), {
+        authorId: author.id,
+        authorName: author.name,
+        authorHandle: author.handle,
+        authorAvatarUrl: author.avatarUrl ?? null,
+        cafeName: values.cafeName,
+        text: values.text,
+        rating: values.rating,
+        likeCount: 0,
+        commentCount: 0,
+        createdAt: serverTimestamp(),
+      });
+
+      // optional: close modal here if成功時に閉じたい
+      closePostModal();
+    } catch (err) {
+      console.error("Failed to create post:", err);
+      alert("Could not publish your post. Please try again.");
+    }
   };
 
   const isAuthRoute =
     location.pathname === "/login" || location.pathname === "/signup";
 
-  // Auth layout only for login / signup
   if (isAuthRoute) {
     return (
       <Routes>
@@ -43,7 +66,6 @@ const App: React.FC = () => {
     );
   }
 
-  // Main app shell
   return (
     <div className="app-shell">
       <aside className="app-shell__sidebar">
@@ -61,7 +83,7 @@ const App: React.FC = () => {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/saved" element={<SavedPage />} />
-          <Route path="/settings" element={<SettingsPage />} /> {/* ❤️ 追加 */}
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>
 

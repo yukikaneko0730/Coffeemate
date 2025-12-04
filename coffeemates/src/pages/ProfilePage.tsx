@@ -37,14 +37,11 @@ const MAX_ROWS = 5;
 ============================= */
 
 const initRowsFromProfile = (source: Profile): CoffeeProfileRow[] => {
-  const baseRows: CoffeeProfileRow[] = Array.from(
-    { length: MAX_ROWS },
-    (_, index) => ({
-      id: `row-${index + 1}`,
-      questionKey: "" as CoffeeQuestionKey | "",
-      answer: "",
-    })
-  );
+  const baseRows: CoffeeProfileRow[] = Array.from({ length: MAX_ROWS }, (_, index) => ({
+    id: `row-${index + 1}`,
+    questionKey: "" as CoffeeQuestionKey | "",
+    answer: "",
+  }));
 
   if (source.coffeeProfile.length > 0) {
     source.coffeeProfile.slice(0, MAX_ROWS).forEach((item, index) => {
@@ -84,7 +81,7 @@ const ProfilePage: React.FC = () => {
 
   const isOwnProfile = profile.isOwnProfile;
 
-  /* image upload refs (used only in edit mode) */
+  /* Image upload refs (used only in edit mode) */
 
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
@@ -117,7 +114,7 @@ const ProfilePage: React.FC = () => {
     }));
   };
 
-  /* coffee profile row handlers */
+  /* Coffee profile row handlers */
 
   const handleQuestionChange = (rowIndex: number, key: CoffeeQuestionKey) => {
     setRows((prev) =>
@@ -141,7 +138,7 @@ const ProfilePage: React.FC = () => {
     return prev.questionKey !== "";
   };
 
-  /* edit mode start / save / cancel */
+  /* Edit mode start / save / cancel */
 
   const handleStartEdit = () => {
     setEditHandle(profile.handle);
@@ -217,7 +214,7 @@ const ProfilePage: React.FC = () => {
     }));
   };
 
-  /* derived view data */
+  /* Derived view data */
 
   const coffeeProfileDisplay = profile.coffeeProfile.map((item) => {
     const q = questionMap.get(item.questionKey);
@@ -235,7 +232,7 @@ const ProfilePage: React.FC = () => {
     return (
       <div className="profile-page">
         <div className="profile-main-block">
-          {/* cover + avatar (not clickable in view mode) */}
+          {/* Cover + avatar (not clickable in view mode) */}
           <div className="profile-cover">
             {profile.coverImageUrl && (
               <img
@@ -256,7 +253,7 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
 
-          {/* header row */}
+          {/* Header row */}
           <div className="profile-header">
             <div className="profile-header__left">
               <div className="profile-basic">
@@ -365,7 +362,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="profile-page profile-page--edit">
       <div className="profile-main-block">
-        {/* cover + avatar (clickable in edit mode) */}
+        {/* Cover + avatar (clickable in edit mode) */}
         <div
           className="profile-cover profile-cover--clickable"
           onClick={handleClickCover}
@@ -422,7 +419,7 @@ const ProfilePage: React.FC = () => {
             </button>
           </div>
 
-          {/* ID / Name / Place fields */}
+          {/* ID / Name / Location fields */}
           <div className="profile-edit-fields">
             <div className="profile-edit-field">
               <label className="profile-edit-label" htmlFor="profile-id">
@@ -456,7 +453,7 @@ const ProfilePage: React.FC = () => {
                 className="profile-edit-label"
                 htmlFor="profile-location-input"
               >
-                Place:
+                Location:
               </label>
               <input
                 id="profile-location-input"

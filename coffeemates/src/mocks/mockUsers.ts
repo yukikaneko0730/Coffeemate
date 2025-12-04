@@ -34,7 +34,7 @@ export type Profile = {
   bio?: string;
   coffeeProfile: CoffeeProfileItem[];
   isOwnProfile: boolean;
-  // 追加: モック用のフォロー関係 & パスワード
+  // mock-only: follow relationship & password for dev
   coffeemateIds?: string[];
   password?: string;
 };
@@ -70,7 +70,8 @@ const marieProfile: Profile = {
   ],
   isOwnProfile: false,
   coffeemateIds: ["user_alex", "user_mia"],
-  password: "marie-coffee",
+  // login password (for dev / mock)
+  password: "coffee-marie",
 };
 
 const mariePosts: FeedPost[] = [
@@ -157,7 +158,7 @@ const alexProfile: Profile = {
   ],
   isOwnProfile: false,
   coffeemateIds: ["user_marie", "user_mia"],
-  password: "alex-drip",
+  password: "coffee-alex",
 };
 
 const alexPosts: FeedPost[] = [
@@ -224,10 +225,10 @@ const miaProfile: Profile = {
       answer: "Gelato × espresso bar with vinyl music.",
     },
   ],
-  // 今は Mia がログインユーザー
+  // Mia is the current logged-in mock user
   isOwnProfile: true,
   coffeemateIds: ["user_marie", "user_alex"],
-  password: "mia-cappuccino",
+  password: "coffee-mia",
 };
 
 const miaPosts: FeedPost[] = [
@@ -294,8 +295,8 @@ const hqProfile: Profile = {
     },
   ],
   isOwnProfile: false,
-  coffeemateIds: [], // HQ は別枠
-  password: "hq-admin",
+  coffeemateIds: [], // HQ is special
+  password: "coffee-hq",
 };
 
 // ============  Export  ============
@@ -307,17 +308,17 @@ export const MOCK_USERS: UserWithPosts[] = [
   { profile: hqProfile, posts: [] },
 ];
 
-// 全ユーザー分の投稿をフラットにまとめたリスト
+// all posts flattened
 export const ALL_POSTS: FeedPost[] = [
   ...mariePosts,
   ...alexPosts,
   ...miaPosts,
 ];
 
-// 便利用：ログイン中ユーザー（とりあえず Mia）
+// convenience: current logged-in user (Mia for now)
 export const CURRENT_USER: UserWithPosts = MOCK_USERS[2];
 
-// HQ アカウントでログインテストしたい場合は、上をコメントアウトしてこれを使う想定：
+// If you want to test logging in as HQ instead, you could temporarily do:
 // export const CURRENT_USER: UserWithPosts = {
 //   profile: hqProfile,
 //   posts: [],

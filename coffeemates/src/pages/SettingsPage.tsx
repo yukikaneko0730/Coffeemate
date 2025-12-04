@@ -1,13 +1,26 @@
 // src/pages/SettingsPage.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CURRENT_USER } from "../mocks/mockUsers";
+import { db } from "../firebase/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import "../styles/SettingsPage.css";
 
 type MessagePrivacy = "everyone" | "coffeemates" | "none";
 
+type UserSettings = {
+  email: string;
+  phone: string;
+  pushEnabled: boolean;
+  messageNotifications: boolean;
+  locationVisible: boolean;
+  messagePrivacy: MessagePrivacy;
+};
+
 export default function SettingsPage() {
   const user = CURRENT_USER.profile;
+  const userId = user.id; // e.g. "user_mia"
 
+  // --- local state (with default UI values) ---
   const [email, setEmail] = useState("mia@example.com");
   const [phone, setPhone] = useState("+49 123 456789");
 
@@ -19,22 +32,65 @@ export default function SettingsPage() {
   const [messageNotifications, setMessageNotifications] = useState(true);
 
   const [locationVisible, setLocationVisible] = useState(true);
-  const [messagePrivacy, setMessagePrivacy] = useState<MessagePrivacy>(
-    "coffeemates"
-  );
+  const [messagePrivacy, setMessagePrivacy] =
+    useState<MessagePrivacy>("coffeemates");
 
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
-    "idle"
-  );
+  const [saveState, setSaveState] =
+    useState<"idle" | "saving" | "saved">("idle");
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = (e: React.FormEvent) => {
+  // --- load settings from Firestore on mount ---
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const ref = doc(db, "userSettings", userId);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const data = snap.data() as UserSettings;
+
+          setEmail(data.email);
+          setPhone(data.phone);
+          setPushEnabled(data.pushEnabled);
+          setMessageNotifications(data.messageNotifications);
+          setLocationVisible(data.locationVisible);
+          setMessagePrivacy(data.messagePrivacy);
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [userId]);
+
+  // --- save settings to Firestore ---
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveState("saving");
 
-    setTimeout(() => {
+    const payload: UserSettings = {
+      email,
+      phone,
+      pushEnabled,
+      messageNotifications,
+      locationVisible,
+      messagePrivacy,
+    };
+
+    try {
+      const ref = doc(db, "userSettings", userId);
+      await setDoc(ref, payload, { merge: true });
       setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 1800);
-    }, 600);
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      setSaveState("idle");
+      return;
+    }
+
+    setTimeout(() => setSaveState("idle"), 1800);
   };
 
   return (
@@ -49,6 +105,11 @@ export default function SettingsPage() {
             </p>
           </div>
         </header>
+
+        {/* simple loading hint (optional, very subtle) */}
+        {loading && (
+          <p className="cm-settings-loading">Loading your settings…</p>
+        )}
 
         {/* MAIN CARD */}
         <form className="cm-settings-card" onSubmit={handleSave}>
@@ -86,7 +147,7 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* PASSWORD */}
+          {/* PASSWORD (local-only for now) */}
           <section className="cm-settings-section">
             <div className="cm-settings-section-header">
               <h2 className="cm-settings-section-title">Password</h2>
