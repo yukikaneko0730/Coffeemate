@@ -1,7 +1,9 @@
 // src/components/CreatePostModal.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PlaceAutocompleteInput from "./PlaceAutocompleteInput";
 import type { CreatePostFormValues } from "../types/postForm";
+import "../styles/CreatePostModal.css";
+
 
 type Props = {
   isOpen: boolean;
@@ -19,6 +21,19 @@ const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // reset when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) return;
+    setTitle("");
+    setLocationInput("");
+    setGooglePlaceId("");
+    setCafeName("");
+    setUserRating(0);
+    setText("");
+    setImageFile(null);
+    setIsSubmitting(false);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleStarClick = (value: number) => {
@@ -30,17 +45,29 @@ const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
     setImageFile(file);
   };
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // close only when clicking on backdrop, not inside the card
+    if (e.target === e.currentTarget && !isSubmitting) {
+      onClose();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!googlePlaceId) {
       alert("Please select a location from suggestions.");
       return;
     }
+    if (!title.trim()) {
+      alert("Please enter a title.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const values: CreatePostFormValues = {
-      title,
-      text,
+      title: title.trim(),
+      text: text.trim(),
       userRating,
       googlePlaceId,
       cafeName,
@@ -49,26 +76,23 @@ const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
 
     try {
       await onSubmit(values);
-      setTitle("");
-      setLocationInput("");
-      setGooglePlaceId("");
-      setCafeName("");
-      setUserRating(0);
-      setText("");
-      setImageFile(null);
       onClose();
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       alert("Failed to create post.");
-    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal-card">
-        <button className="modal-card__close" onClick={onClose}>
+        <button
+          className="modal-card__close"
+          onClick={onClose}
+          type="button"
+          disabled={isSubmitting}
+        >
           ✕
         </button>
 
@@ -76,6 +100,7 @@ const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
 
         <form className="modal-card__form" onSubmit={handleSubmit}>
           <div className="modal-card__content">
+            {/* Left: image upload */}
             <div className="modal-card__left">
               <label className="upload-box">
                 <input
@@ -100,6 +125,7 @@ const CreatePostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
               </label>
             </div>
 
+            {/* Right: form fields */}
             <div className="modal-card__right">
               <label className="modal-field">
                 <span className="modal-field__label">Title</span>

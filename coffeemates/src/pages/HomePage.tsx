@@ -1,6 +1,6 @@
 // src/pages/HomePage.tsx
 import { useEffect, useMemo, useState } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import BerlinMapPlaceholder from "../components/BerlinMapPlaceholder";
 import SuggestionCard from "../components/SuggestionCard";
 import FeedPostCard from "../components/FeedPostCard";
 import { mockCafes } from "../mocks/cafes";
@@ -16,19 +16,6 @@ type LatLng = {
 
 type TabKey = "friends" | "others";
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "320px",
-  borderRadius: "12px",
-  border: "1px solid #e5e5e5",
-  overflow: "hidden",
-};
-
-const defaultCenter: LatLng = {
-  lat: 52.52,
-  lng: 13.405,
-};
-
 // Simple shuffle helper for “Others Post”
 const shuffle = <T,>(items: T[]): T[] => {
   const copy = [...items];
@@ -41,20 +28,13 @@ const shuffle = <T,>(items: T[]): T[] => {
 
 const HomePage = () => {
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
-  const [mapCenter, setMapCenter] = useState<LatLng>(defaultCenter);
   const [activeTab, setActiveTab] = useState<TabKey>("friends");
   const [posts, setPosts] = useState<FeedPost[]>(mockPosts);
 
   // Just for the visual of the search bar (no heavy logic yet)
   const [friendQuery, setFriendQuery] = useState("");
 
-  // Load Google Maps script
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
-  });
-
-  // Try to read browser location
+  // ブラウザの現在地だけ取得（UI のチップ表示に使う）
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -65,7 +45,6 @@ const HomePage = () => {
           lng: position.coords.longitude,
         };
         setUserLocation(coords);
-        setMapCenter(coords);
       },
       () => {
         setUserLocation(null);
@@ -177,7 +156,7 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* 1. Map (full width) */}
+      {/* 1. Map (full width, now placeholder) */}
       <section className="home-section home-map-section">
         <div className="home-section-header">
           <h2 className="home-section-title">Map</h2>
@@ -186,26 +165,7 @@ const HomePage = () => {
           </span>
         </div>
 
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={mapCenter}
-            zoom={13}
-            options={{ disableDefaultUI: true }}
-          >
-            {/* Center marker */}
-            <Marker position={mapCenter} />
-            {/* Optional: highlight exact user location in blue */}
-            {userLocation && (
-              <Marker
-                position={userLocation}
-                icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-              />
-            )}
-          </GoogleMap>
-        ) : (
-          <div className="home-map__placeholder">Loading map…</div>
-        )}
+        <BerlinMapPlaceholder />
       </section>
 
       {/* 2. Suggestions for you (flat, 3 cards horizontal) */}
@@ -267,7 +227,6 @@ const HomePage = () => {
           </button>
         </div>
 
-        {/* key={activeTab} → smooth fade on tab change */}
         <div
           key={activeTab}
           className="home-post-list home-post-list--animated"

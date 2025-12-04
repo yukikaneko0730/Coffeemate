@@ -1,19 +1,22 @@
 // src/components/Sidebar.tsx
 import React from "react";
+import { NavLink } from "react-router-dom";
+import "../styles/Sidebar.css";
 
 type SidebarProps = {
   isLoggedIn: boolean;
   userName?: string;
   avatarUrl?: string;
+  onPostClick?: () => void;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
   isLoggedIn,
   userName = "Welcome!",
   avatarUrl,
+  onPostClick,
 }) => {
   if (!isLoggedIn) {
-    
     return (
       <aside className="sidebar">
         <div className="sidebar__inner">
@@ -28,7 +31,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     );
   }
 
-  
+  // helper for NavLink
+  const navItemClass = ({ isActive }: { isActive: boolean }) =>
+    "sidebar__nav-item" + (isActive ? " sidebar__nav-item--active" : "");
+
   return (
     <aside className="sidebar">
       <div className="sidebar__inner">
@@ -57,7 +63,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span className="sidebar__notification-icon">🔔</span>
             <span className="sidebar__notification-title">Notification</span>
           </div>
-          <p className="sidebar__notification-sub">New recommendation for you!</p>
+          <p className="sidebar__notification-sub">
+            New recommendation for you!
+          </p>
           <div className="sidebar__notification-item">
             @coffeeeeena commented on your post
           </div>
@@ -68,26 +76,37 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* nav */}
         <nav className="sidebar__nav">
-          <button className="sidebar__nav-item sidebar__nav-item--active">
+          {/* Home */}
+          <NavLink to="/" className={navItemClass} end>
             <span className="sidebar__nav-icon">🏠</span>
             <span>Home</span>
-          </button>
-          <button className="sidebar__nav-item">
-            <span className="sidebar__nav-icon">🔍</span>
-            <span>Search</span>
-          </button>
-          <button className="sidebar__nav-item">
+          </NavLink>
+
+          {/* Messages */}
+          <NavLink to="/messages" className={navItemClass}>
             <span className="sidebar__nav-icon">💬</span>
             <span>Messages</span>
-          </button>
-          <button className="sidebar__nav-item">
+          </NavLink>
+
+          {/* Post → open modal */}
+          <button className="sidebar__nav-item" onClick={onPostClick}>
             <span className="sidebar__nav-icon">➕</span>
             <span>Post</span>
           </button>
-          <button className="sidebar__nav-item">
+
+          {/* Saved posts */}
+          <NavLink to="/saved" className={navItemClass}>
+            <span className="sidebar__nav-icon">⭐</span>
+            <span>Saved</span>
+          </NavLink>
+
+          {/* Profile */}
+          <NavLink to="/profile" className={navItemClass}>
             <span className="sidebar__nav-icon">👤</span>
             <span>Profile</span>
-          </button>
+          </NavLink>
+
+          {/* Settings (placeholder) */}
           <button className="sidebar__nav-item">
             <span className="sidebar__nav-icon">⚙️</span>
             <span>Settings</span>

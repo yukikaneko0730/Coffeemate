@@ -1,7 +1,7 @@
 // src/components/PlaceAutocompleteInput.tsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-type PlaceSuggestion = {
+export type PlaceSuggestion = {
   placeId: string;
   description: string;
 };
@@ -23,6 +23,7 @@ const PlaceAutocompleteInput: React.FC<Props> = ({
   useEffect(() => {
     if (!value || value.length < 2) {
       setSuggestions([]);
+      setIsOpen(false);
       return;
     }
 
@@ -33,10 +34,10 @@ const PlaceAutocompleteInput: React.FC<Props> = ({
         );
         if (!res.ok) return;
         const data = await res.json();
-        setSuggestions(data.suggestions);
+        setSuggestions(data.suggestions ?? []);
         setIsOpen(true);
-      } catch (e) {
-        console.error("Failed to fetch suggestions", e);
+      } catch (error) {
+        console.error("Failed to fetch place suggestions", error);
       }
     }, 250);
 

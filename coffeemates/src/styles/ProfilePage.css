@@ -1,0 +1,772 @@
+/* ========== Base layout ========== */
+
+.profile-page {
+  padding: 24px 40px 48px;
+  max-width: 1160px;
+  margin: 0 auto;
+  font-size: 14px;
+  background: #ffffff; /* profile background is white */
+}
+
+/* top profile area (white area in Figma) */
+.profile-main-block {
+  background: #ffffff;
+  border-radius: 0;
+  padding: 0 0 24px;
+}
+
+/* keep edit mode background white as well */
+.profile-page--edit {
+  background: #ffffff;
+}
+
+/* ========== Cover + avatar ========== */
+
+.profile-cover {
+  position: relative;
+  border-radius: 12px;
+  overflow: visible; /* allow avatar to float outside the cover */
+  margin-bottom: 72px;
+  background: #ddd;
+  height: 220px;
+  z-index: 1;
+}
+
+.profile-cover__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.profile-cover--clickable {
+  cursor: pointer;
+}
+
+.profile-cover__file-input {
+  display: none;
+}
+
+/* avatar wrapper creates the circular photo that overlaps the cover */
+
+.profile-avatar-wrapper {
+  position: absolute;
+  left: 80px;
+  bottom: -84px;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  background: #ffffff;
+  z-index: 2; /* make sure avatar is in front of the cover */
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-avatar__file-input {
+  display: none;
+}
+
+.profile-avatar__overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 0%,
+    transparent 0,
+    transparent 55%,
+    rgba(0, 0, 0, 0.35) 90%
+  );
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+
+.profile-avatar-wrapper:hover .profile-avatar__overlay {
+  opacity: 1;
+}
+
+/* ========== Header row ========== */
+
+.profile-header,
+.profile-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.profile-header__left {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  padding-top: 32px; /* match spacing used for the basic info block */
+}
+
+/* basic info */
+
+.profile-basic {
+  margin-top: 0;
+}
+
+.profile-handle {
+  font-size: 13px;
+  color: #888;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.profile-location {
+  font-size: 13px;
+  color: #666;
+}
+
+/* stats */
+
+.profile-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 6px;
+}
+
+.profile-stat {
+  text-align: left;
+}
+
+.profile-stat__label1 {
+  display: block;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+.profile-stat__label2 {
+  display: block;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.profile-stat__value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Coffeemates stat as button (clickable) */
+
+.profile-stat--clickable {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 1;
+}
+
+.profile-stat--clickable:focus {
+  outline: none; /* remove blue focus outline */
+}
+
+/* buttons */
+
+.profile-header__right {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.profile-btn {
+  border-radius: 999px;
+  padding: 7px 20px;
+  font-size: 13px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.profile-btn--primary {
+  background: #315efb;
+  color: #fff;
+  border-color: #315efb;
+}
+
+.profile-btn--primary:hover {
+  background: #264bd7;
+}
+
+.profile-btn--secondary {
+  background: #e1e1e1;
+  color: #333;
+  border-color: #d0d0d0;
+}
+
+.profile-btn--ghost {
+  background: #fff;
+  color: #555;
+  border-color: #ddd;
+}
+
+.profile-btn--ghost:hover {
+  background: #f8f8f8;
+}
+
+/* ========== Sections ========== */
+
+.profile-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 24px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.profile-section--coffee-view {
+  margin-top: 8px;
+}
+
+.profile-section__title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Coffee profile table */
+
+.profile-coffee-table {
+  border-top: 1px solid #eee;
+}
+
+.profile-coffee-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+}
+
+.profile-coffee-row__q {
+  color: #777;
+}
+
+.profile-coffee-row__a {
+  color: #333;
+}
+
+/* ========== Edit mode ========== */
+
+/* form grows/shrinks with page width */
+.profile-edit-form {
+  width: 100%;
+  margin: 0 auto 40px;
+}
+
+.profile-edit-header {
+  margin-bottom: 16px;
+}
+
+/* widen the edit form fields and keep them responsive */
+
+.profile-edit-fields {
+  margin: 0 auto 24px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.profile-edit-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.profile-edit-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.profile-edit-input {
+  width: 100%;
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #e3dfd5;
+  font-size: 13px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.profile-edit-input:focus {
+  outline: none;
+  border-color: #caa15c;
+  box-shadow: 0 0 0 1px rgba(202, 161, 92, 0.25);
+}
+
+/* Coffee profile edit */
+
+.profile-section--coffee-edit {
+  margin-top: 8px;
+}
+
+.profile-coffee-edit-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-coffee-edit-caption {
+  font-size: 12px;
+  color: #777;
+}
+
+.profile-coffee-editor {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+/* edit footer */
+
+.profile-edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* CoffeeQuestionRow shared styles */
+
+.coffee-row-wrapper {
+  position: relative;
+}
+
+.coffee-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  align-items: center;
+  border-bottom: 1px solid #e8e2d8;
+  font-size: 12px;
+  color: #333;
+  min-height: 32px;
+}
+
+.coffee-row--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.coffee-row__question-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 0;
+}
+
+.coffee-row__question-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coffee-row__toggle {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 140ms ease-out;
+}
+
+.coffee-row__toggle:hover {
+  background: #f2ede2;
+}
+
+.coffee-row__answer-cell {
+  padding: 4px 0 4px 8px;
+}
+
+.coffee-row__answer-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 4px 6px;
+  font-size: 12px;
+  background: transparent;
+}
+
+.coffee-row__answer-input:focus {
+  outline: none;
+  border-bottom-color: #caa15c;
+}
+
+/* Question popup */
+
+.coffee-question-popup {
+  position: absolute;
+  width: 490px;
+  height: 490px;
+  bottom: 16px;
+  left: 40px;
+  z-index: 30;
+}
+
+.coffee-question-popup__inner {
+  width: 100%;
+  height: 100%;
+  background: #f8f1d9;
+  border-radius: 8px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.coffee-question-popup__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.coffee-question-popup__title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.coffee-question-popup__subtitle {
+  font-size: 11px;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.coffee-question-popup__scroll {
+  margin-top: 4px;
+  padding-right: 6px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.coffee-question-popup__scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.coffee-question-popup__scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+}
+
+.coffee-question-popup__group {
+  margin-bottom: 10px;
+}
+
+.coffee-question-popup__group-label {
+  font-weight: 600;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.coffee-question-popup__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 2px;
+}
+
+.coffee-question-popup__item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 4px;
+  border-radius: 4px;
+  transition: background-color 120ms ease-out;
+}
+
+.coffee-question-popup__item:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.coffee-question-popup__item--active {
+  background: #fff4c5;
+  font-weight: 600;
+}
+
+/* ========== Posts area ========== */
+
+/* beige background behind the posts area */
+.profile-posts-wrapper {
+  background: #f7f3e7;
+  margin: 0 -40px -48px;
+  padding: 24px 40px 48px;
+}
+
+/* white card that wraps posts list */
+.profile-posts-card {
+  max-width: 920px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 24px 28px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.profile-posts-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.profile-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ========== Coffeemates modal ========== */
+
+.profile-coffeemates-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.profile-coffeemates-modal {
+  position: relative;
+  width: 86%;
+  max-width: 880px;
+  min-height: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  padding: 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-coffeemates-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.profile-coffeemates-inner {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+/* left column */
+
+.profile-coffeemates-left {
+  border-right: 1px solid #eee;
+  padding-right: 16px;
+}
+
+.profile-coffeemates-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.profile-coffeemates-count {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.profile-coffeemates-avatars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-coffeemates-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-coffeemates-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-coffeemates-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ddd;
+}
+
+/* right column */
+
+.profile-coffeemates-right {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.profile-coffeemates-empty {
+  font-size: 14px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.profile-coffeemates-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-coffeemates-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 14px;
+}
+
+.profile-coffeemates-handle {
+  color: #315efb;
+  text-decoration: none;
+}
+
+.profile-coffeemates-handle:hover {
+  text-decoration: underline;
+}
+
+.profile-coffeemates-delete {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  color: #cc2a2a;
+}
+
+/* confirm dialog inside modal */
+
+.profile-coffeemates-confirm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
+  padding: 18px 20px 16px;
+  text-align: center;
+}
+
+.profile-coffeemates-confirm-text {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.profile-coffeemates-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.profile-coffeemates-btn {
+  min-width: 90px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.profile-coffeemates-btn--cancel {
+  background: #d2cfcf;
+  color: #333;
+}
+
+.profile-coffeemates-btn--danger {
+  background: #d64343;
+  color: #fff;
+}
+
+/* ========== Responsive ========== */
+
+@media (max-width: 900px) {
+  .profile-page {
+    padding: 16px 16px 32px;
+  }
+
+  .profile-posts-wrapper {
+    margin: 0 -16px -32px;
+    padding: 16px;
+  }
+
+  .profile-avatar-wrapper {
+    left: 40px;
+    width: 140px;
+    height: 140px;
+    bottom: -70px;
+  }
+
+  .profile-basic {
+    margin-top: 24px;
+  }
+
+  .profile-edit-fields {
+    max-width: 100%;
+  }
+
+  .profile-coffeemates-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-coffeemates-left {
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding-right: 0;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+}

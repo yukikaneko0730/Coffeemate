@@ -1,13 +1,18 @@
 // src/components/FeedPostCard.tsx
 import React, { useEffect, useState } from "react";
 import type { FeedPost } from "../types/feedPost";
+import "../styles/FeedPostCard.css";
+import {
+  getSavedPostIds,
+  toggleSavedPostId,
+} from "../utils/savedPosts";
 
 type FeedPostCardProps = {
   post: FeedPost;
   onDeleteComment?: (postId: string, commentId: string) => void;
   onOpenChat?: (post: FeedPost) => void;
   onOpenDirections?: (post: FeedPost) => void;
-  onToggleSave?: (postId: string) => void;
+  onToggleSave?: (postId: string) => void; // parent can respond (e.g. refresh /saved)
   onShare?: (post: FeedPost) => void;
 };
 
@@ -34,12 +39,25 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
   );
   const [likeCount, setLikeCount] = useState<number>(post.likeCount ?? 0);
 
+  // Saved state (local + from localStorage)
+  const [isSaved, setIsSaved] = useState<boolean>(
+    !!post.isSavedByCurrentUser
+  );
+
   const [placeInfo, setPlaceInfo] = useState<GooglePlaceInfo | null>(null);
   const [showAllComments, setShowAllComments] = useState(false);
 
   const visibleComments = showAllComments
     ? post.comments
     : post.comments.slice(0, 4);
+
+  // Initialize saved state from localStorage
+  useEffect(() => {
+    const savedIds = getSavedPostIds();
+    if (savedIds.includes(post.id)) {
+      setIsSaved(true);
+    }
+  }, [post.id]);
 
   useEffect(() => {
     if (!post.googlePlaceId) return;
@@ -74,6 +92,8 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
   };
 
   const handleToggleSave = () => {
+    const nextSaved = toggleSavedPostId(post.id);
+    setIsSaved(nextSaved);
     onToggleSave?.(post.id);
   };
 
@@ -138,13 +158,11 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
             type="button"
             className={
               "feed-card__ghost-btn" +
-              (post.isSavedByCurrentUser
-                ? " feed-card__ghost-btn--active"
-                : "")
+              (isSaved ? " feed-card__ghost-btn--active" : "")
             }
             onClick={handleToggleSave}
           >
-            🔖 Save
+            {isSaved ? "✅ Saved" : "🔖 Save"}
           </button>
         </div>
       </header>
@@ -155,10 +173,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
         <div className="feed-card__media" />
 
         {/* Middle column: cafe info (Google-powered block) */}
-        <div
-          className="feed-card__middle"
-          onClick={handleOpenGoogle}
-        >
+        <div className="feed-card__middle" onClick={handleOpenGoogle}>
           <h3 className="feed-card__cafe-name">
             {placeInfo?.name ?? post.cafeName}
           </h3>
@@ -210,13 +225,16 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
               Star
             </button>
             <button
-              className="feed-card__pill-btn"
+              className={
+                "feed-card__pill-btn" +
+                (isSaved ? " feed-card__pill-btn--active" : "")
+              }
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleSave();
               }}
             >
-              Save
+              {isSaved ? "Saved" : "Save"}
             </button>
             <button
               className="feed-card__pill-btn"

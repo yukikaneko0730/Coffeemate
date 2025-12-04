@@ -1,0 +1,44 @@
+/* ===== Dummy map placeholder ===== */
+
+.map-placeholder {
+  width: 100%;
+  height: 340px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #d0dcff, #f8dfc7);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 左上の Prototype バッジ */
+.map-placeholder__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+/* 中央のテキスト */
+.map-placeholder__content {
+  text-align: center;
+  color: #23314f;
+}
+
+.map-placeholder__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.map-placeholder__text {
+  font-size: 13px;
+  opacity: 0.9;
+  line-height: 1.4;
+}

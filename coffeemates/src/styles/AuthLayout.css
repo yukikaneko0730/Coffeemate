@@ -1,0 +1,274 @@
+/* ========== 全体レイアウト ========== */
+
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    Arial, sans-serif;
+  color: #333;
+}
+
+/* sidebar */
+
+.auth-sidebar {
+  width: 245px;
+  background: #ffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+}
+
+.auth-sidebar__logo {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 40px;
+}
+
+.auth-sidebar__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.auth-sidebar__welcome {
+  font-size: 14px;
+  color: #555;
+}
+
+/* 右側：背景画像 ＋ センターカード */
+
+.auth-main {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景写真 */
+.auth-main__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("../photo/coffeematecover.png");
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.9);
+}
+
+/* 手前のオーバーレイ（中央の白い板） */
+.auth-main__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 70%;
+  max-width: 900px;
+  min-height: 520px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 60px 80px;
+}
+
+/* タイトル・キャッチコピー */
+
+.auth-card__title {
+  text-align: center;
+  font-size: 32px;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.auth-card__subtitle {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+/* 上のボタン行（Sign up with Email / ID など） */
+
+.auth-card__top-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.auth-btn-outline {
+  min-width: 200px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #3563e9;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+}
+
+.auth-btn-outline:hover {
+  background: #eef2ff;
+  box-shadow: 0 0 0 1px rgba(53, 99, 233, 0.2);
+}
+
+.auth-btn-outline:active {
+  transform: translateY(1px);
+}
+
+/* メインフォームエリア */
+
+.auth-form-section {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.auth-form-section__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+/* フォーム */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-label {
+  font-size: 13px;
+  color: #555;
+}
+
+.auth-input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 8px 4px;
+  font-size: 14px;
+  background: transparent;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-bottom-color: #3563e9;
+}
+
+/* Google / Tel ボタンなど */
+
+.auth-social-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.auth-btn-social {
+  min-width: 220px;
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.auth-btn-social--primary {
+  border-color: #3563e9;
+}
+
+/* OR ライン */
+
+.auth-or {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0 24px;
+  color: #777;
+  font-size: 12px;
+}
+
+.auth-or__line {
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* Submitボタン */
+
+.auth-btn-primary {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #4b6fe9;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+}
+
+.auth-btn-primary:hover {
+  background: #375ae0;
+  box-shadow: 0 8px 20px rgba(55, 90, 224, 0.35);
+}
+
+.auth-btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* 下のテキスト */
+
+.auth-bottom-text {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: #555;
+}
+
+.auth-bottom-text a {
+  color: #3563e9;
+  text-decoration: none;
+}
+
+.auth-bottom-text a:hover {
+  text-decoration: underline;
+}
+
+/* ちょっとレスポンシブ */
+
+@media (max-width: 960px) {
+  .auth-card {
+    width: 86%;
+    padding: 40px 24px;
+  }
+
+  .auth-sidebar {
+    display: none;
+  }
+}

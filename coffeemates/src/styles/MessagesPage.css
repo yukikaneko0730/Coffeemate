@@ -1,0 +1,48 @@
+/* src/styles/MessagesPage.css */
+
+.messages-layout {
+  display: flex;
+  height: 100%;
+}
+
+/* left column inside the main content area */
+.messages-list {
+  width: 280px;
+  border-right: 1px solid #e5e0d6;
+  padding: 24px 20px;
+  background: #f7f3e7;
+}
+
+.messages-list__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.messages-list__empty {
+  font-size: 14px;
+  color: #777;
+}
+
+/* right column: chat detail area */
+.messages-detail {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messages-detail__empty {
+  text-align: center;
+  color: #777;
+}
+
+.messages-detail__empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.messages-detail__empty-text {
+  font-size: 14px;
+}

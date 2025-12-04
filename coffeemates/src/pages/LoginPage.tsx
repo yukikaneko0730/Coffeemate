@@ -1,44 +1,112 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
+import "../styles/AuthLayout.css";
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [useId, setUseId] = useState(false);
+  const [credential, setCredential] = useState("");
   const [password, setPassword] = useState("");
 
-  // いったん console.log だけ。あとで Firebase Auth に差し替え。
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("login", { email, password });
+    console.log("login", {
+      mode: useId ? "id" : "email",
+      credential,
+      password,
+    });
+    // TODO: Firebase login
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h1>Login</h1>
-        <p className="login-card__subtitle">Welcome back to coffeemates</p>
+    <div className="auth-layout">
+      {/* Left sidebar */}
+      <aside className="auth-sidebar">
+        <div className="auth-sidebar__logo">Coffeemates</div>
+        <div className="auth-sidebar__avatar">
+          <span role="img" aria-label="avatar">
+            👤
+          </span>
+        </div>
+        <div className="auth-sidebar__welcome">Welcome!</div>
+      </aside>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
+      {/* Right area */}
+      <main className="auth-main">
+        <div className="auth-main__bg" />
 
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
+        <div className="auth-main__content">
+          <section className="auth-card">
+            <h1 className="auth-card__title">Coffeemates</h1>
+            <p className="auth-card__subtitle">
+              Connect, sip, and share your brew.
+            </p>
 
-          <button type="submit">Sign in</button>
-        </form>
-      </div>
+            {/* Buttons */}
+            <div className="auth-card__top-buttons">
+              <button
+                className="auth-btn-outline"
+                onClick={() => setUseId(false)}
+              >
+                Sign up with Email
+              </button>
+
+              <button
+                className="auth-btn-outline"
+                onClick={() => setUseId(true)}
+              >
+                ID
+              </button>
+            </div>
+
+            {/* Sign-in section */}
+            <div className="auth-form-section">
+              <h2 className="auth-form-section__title">Sign-in</h2>
+
+              <form className="auth-form" onSubmit={handleSubmit}>
+                {/* Email / ID input */}
+                <div className="auth-field-group">
+                  <label className="auth-label" htmlFor="login-credential">
+                    {useId ? "ID" : "Email"}
+                  </label>
+
+                  <input
+                    id="login-credential"
+                    className="auth-input"
+                    type={useId ? "text" : "email"}
+                    placeholder={useId ? "Enter your ID" : "you@example.com"}
+                    value={credential}
+                    onChange={(e) => setCredential(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="auth-field-group">
+                  <label className="auth-label" htmlFor="login-password">
+                    Password
+                  </label>
+                  <input
+                    id="login-password"
+                    className="auth-input"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="auth-btn-primary">
+                  Login
+                </button>
+              </form>
+
+              <p className="auth-bottom-text">
+                Don’t have an account? <a href="/signup">Signup Here</a>
+              </p>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 };

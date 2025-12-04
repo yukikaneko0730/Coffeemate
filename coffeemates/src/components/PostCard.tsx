@@ -1,5 +1,6 @@
 // src/components/PostCard.tsx
 import React from "react";
+import "../styles/SuggestionCard.css";
 
 type Post = {
   id: string;

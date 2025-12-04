@@ -5,5 +5,5 @@ export type CreatePostFormValues = {
   userRating: number;
   googlePlaceId: string;
   cafeName: string;
-  imageFile?: File | null;
+  imageFile: File | null;
 };
