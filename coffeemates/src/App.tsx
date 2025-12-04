@@ -6,7 +6,9 @@ import Sidebar from "./components/Sidebar";
 import HomePage from "./pages/HomePage";
 import MessagesPage from "./pages/MessagesPage";
 import ProfilePage from "./pages/ProfilePage";
-import SavedPage from "./pages/SavedPage"; // 👈 add this
+import SavedPage from "./pages/SavedPage";
+import SettingsPage from "./pages/SettingsPage";  
+
 import CreatePostModal from "./components/CreatePostModal";
 import type { CreatePostFormValues } from "./types/postForm";
 
@@ -58,7 +60,8 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/saved" element={<SavedPage />} /> {/* 👈 Saved page */}
+          <Route path="/saved" element={<SavedPage />} />
+          <Route path="/settings" element={<SettingsPage />} /> {/* ❤️ 追加 */}
         </Routes>
       </main>
 

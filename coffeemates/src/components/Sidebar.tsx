@@ -106,11 +106,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span>Profile</span>
           </NavLink>
 
-          {/* Settings (placeholder) */}
-          <button className="sidebar__nav-item">
+          {/* Settings → now real link */}
+          <NavLink to="/settings" className={navItemClass}>
             <span className="sidebar__nav-icon">⚙️</span>
             <span>Settings</span>
-          </button>
+          </NavLink>
         </nav>
       </div>
     </aside>

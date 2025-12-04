@@ -12,6 +12,9 @@ import alexCover from "../photo/alexcover.png";
 import miaIcon from "../photo/miaicon.png";
 import miaCover from "../photo/miacover.png";
 
+import hqIcon from "../photo/coffeemateicon.png";
+import hqCover from "../photo/coffeematecover.png";
+
 export type CoffeeProfileItem = {
   questionKey: CoffeeQuestionKey;
   answer: string;
@@ -31,6 +34,9 @@ export type Profile = {
   bio?: string;
   coffeeProfile: CoffeeProfileItem[];
   isOwnProfile: boolean;
+  // 追加: モック用のフォロー関係 & パスワード
+  coffeemateIds?: string[];
+  password?: string;
 };
 
 export type UserWithPosts = {
@@ -62,7 +68,9 @@ const marieProfile: Profile = {
       answer: "Minimal, light-filled café with plants and jazz.",
     },
   ],
-  isOwnProfile: true,
+  isOwnProfile: false,
+  coffeemateIds: ["user_alex", "user_mia"],
+  password: "marie-coffee",
 };
 
 const mariePosts: FeedPost[] = [
@@ -148,6 +156,8 @@ const alexProfile: Profile = {
     },
   ],
   isOwnProfile: false,
+  coffeemateIds: ["user_marie", "user_mia"],
+  password: "alex-drip",
 };
 
 const alexPosts: FeedPost[] = [
@@ -214,7 +224,10 @@ const miaProfile: Profile = {
       answer: "Gelato × espresso bar with vinyl music.",
     },
   ],
-  isOwnProfile: false,
+  // 今は Mia がログインユーザー
+  isOwnProfile: true,
+  coffeemateIds: ["user_marie", "user_alex"],
+  password: "mia-cappuccino",
 };
 
 const miaPosts: FeedPost[] = [
@@ -256,12 +269,42 @@ const miaPosts: FeedPost[] = [
   },
 ];
 
+// ============  User 4: Coffeemates HQ  ============
+
+const hqProfile: Profile = {
+  id: "user_hq",
+  handle: "@coffeemates_hq",
+  name: "Coffeemates HQ",
+  location: "Global",
+  coverImageUrl: hqCover,
+  avatarUrl: hqIcon,
+  stats: {
+    coffeemates: 999,
+    posts: 0,
+  },
+  bio: "Official Coffeemates account. Sharing updates, features and coffee love.",
+  coffeeProfile: [
+    { questionKey: "favoriteTypeOfCoffee", answer: "Any coffee shared with friends" },
+    { questionKey: "favoriteCafeInArea", answer: "Your next discovery" },
+    { questionKey: "coffeeVibe", answer: "Warm & welcoming" },
+    { questionKey: "favoriteBeanOrigin", answer: "Blends from everywhere" },
+    {
+      questionKey: "ownedCafeIdea",
+      answer: "Community hub where coffeemates meet for real.",
+    },
+  ],
+  isOwnProfile: false,
+  coffeemateIds: [], // HQ は別枠
+  password: "hq-admin",
+};
+
 // ============  Export  ============
 
 export const MOCK_USERS: UserWithPosts[] = [
   { profile: marieProfile, posts: mariePosts },
   { profile: alexProfile, posts: alexPosts },
   { profile: miaProfile, posts: miaPosts },
+  { profile: hqProfile, posts: [] },
 ];
 
 // 全ユーザー分の投稿をフラットにまとめたリスト
@@ -271,5 +314,11 @@ export const ALL_POSTS: FeedPost[] = [
   ...miaPosts,
 ];
 
-// 便利用：ログイン中ユーザー（とりあえず Marie）
+// 便利用：ログイン中ユーザー（とりあえず Mia）
 export const CURRENT_USER: UserWithPosts = MOCK_USERS[2];
+
+// HQ アカウントでログインテストしたい場合は、上をコメントアウトしてこれを使う想定：
+// export const CURRENT_USER: UserWithPosts = {
+//   profile: hqProfile,
+//   posts: [],
+// };
