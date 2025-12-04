@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noEmit": false,
+    "outDir": ".seed-dist"
+  },
+  "include": ["src/scripts/**/*", "src/mocks/**/*", "src/firebase/**/*"]
+}
