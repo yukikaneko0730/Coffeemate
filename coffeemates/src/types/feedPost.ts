@@ -1,4 +1,5 @@
 // src/types/feedPost.ts
+
 export type FeedPostComment = {
   id: string;
   authorName: string;
@@ -8,25 +9,20 @@ export type FeedPostComment = {
 
 export type FeedPost = {
   id: string;
-
   authorId: string;
   authorName: string;
-  authorAvatarUrl?: string;
-
-  // cafe info
+  authorAvatarUrl: string;
   cafeName: string;
-  googlePlaceId?: string; // Google Places ID
-
-  // content
   text: string;
-  rating: number;         // ★ average or user rating
+  rating: number;
+  googlePlaceId?: string;
 
-  // meta
-  isFriend?: boolean;     // used on HomePage.tsx
+  likeCount: number;
+  isLikedByCurrentUser?: boolean;
+  isSavedByCurrentUser?: boolean;
+
   comments: FeedPostComment[];
 
-  // social state
-  isLikedByCurrentUser?: boolean;
-  likeCount?: number;
-  isSavedByCurrentUser?: boolean;
+  // for UI 
+  createdAt?: Date | null;
 };

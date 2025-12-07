@@ -1,5 +1,9 @@
-// src/pages/ProfilePage.tsx
-import React, { useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import "../styles/ProfilePage.css";
 
 import CoffeeQuestionRow, {
@@ -19,12 +23,7 @@ import CoffeematesModal, {
   type CoffeemateUser,
 } from "../components/CoffeematesModal";
 
-import {
-  CURRENT_USER,
-  MOCK_USERS,
-  type Profile,
-  type CoffeeProfileItem,
-} from "../mocks/mockUsers";
+import type { Profile, CoffeeProfileItem } from "../mocks/mockUsers"; // or your real types path
 
 /* =============================
    Constants
@@ -36,19 +35,23 @@ const MAX_ROWS = 5;
    Helpers
 ============================= */
 
-const initRowsFromProfile = (source: Profile): CoffeeProfileRow[] => {
-  const baseRows: CoffeeProfileRow[] = Array.from({ length: MAX_ROWS }, (_, index) => ({
-    id: `row-${index + 1}`,
-    questionKey: "" as CoffeeQuestionKey | "",
-    answer: "",
-  }));
+const initRowsFromProfile = (source: Profile | null): CoffeeProfileRow[] => {
+  const baseRows: CoffeeProfileRow[] = Array.from(
+    { length: MAX_ROWS },
+    (_, index) => ({
+      id: `row-${index + 1}`,
+      questionKey: "" as CoffeeQuestionKey | "",
+      answer: "",
+    })
+  );
 
-  if (source.coffeeProfile.length > 0) {
+  if (source && source.coffeeProfile && source.coffeeProfile.length > 0) {
     source.coffeeProfile.slice(0, MAX_ROWS).forEach((item, index) => {
       baseRows[index].questionKey = item.questionKey;
       baseRows[index].answer = item.answer;
     });
   } else {
+    // Default first row
     baseRows[0].questionKey = "favoriteTypeOfCoffee";
   }
 
@@ -60,18 +63,85 @@ const initRowsFromProfile = (source: Profile): CoffeeProfileRow[] => {
 ============================= */
 
 const ProfilePage: React.FC = () => {
-  const [profile, setProfile] = useState<Profile>(CURRENT_USER.profile);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [userPosts, setUserPosts] = useState<FeedPost[]>([]);
+  const [coffeemates, setCoffeemates] = useState<CoffeemateUser[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [isEditing, setIsEditing] = useState(false);
 
-  const [editHandle, setEditHandle] = useState(profile.handle);
-  const [editName, setEditName] = useState(profile.name);
-  const [editLocation, setEditLocation] = useState(profile.location);
+  const [editHandle, setEditHandle] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editLocation, setEditLocation] = useState("");
 
-  const [rows, setRows] = useState<CoffeeProfileRow[]>(() =>
-    initRowsFromProfile(CURRENT_USER.profile)
-  );
+  const [rows, setRows] = useState<CoffeeProfileRow[]>([]);
 
-  const userPosts: FeedPost[] = CURRENT_USER.posts;
+  /* =============================
+     Image upload refs
+  ============================== */
+
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
+  /* =============================
+     Derived counts
+  ============================== */
+
+  const postsCount = userPosts.length;
+  const coffeematesCount = coffeemates.length;
+
+  /* =============================
+     Load data from API
+  ============================== */
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+
+        // Example endpoints – adjust to your backend
+        const [profileRes, postsRes, coffeematesRes] = await Promise.all([
+          fetch("/api/me"), // returns the current user's profile
+          fetch("/api/me/posts"), // returns FeedPost[]
+          fetch("/api/me/coffeemates"), // returns CoffeemateUser[]
+        ]);
+
+        if (!profileRes.ok || !postsRes.ok || !coffeematesRes.ok) {
+          throw new Error("Failed to load profile data");
+        }
+
+        const profileData: Profile = await profileRes.json();
+        const postsData: FeedPost[] = await postsRes.json();
+        const coffeematesData: CoffeemateUser[] = await coffeematesRes.json();
+
+        setProfile(profileData);
+        setUserPosts(postsData);
+        setCoffeemates(coffeematesData);
+
+        // Initialize coffee profile editor rows from loaded profile
+        setRows(initRowsFromProfile(profileData));
+
+        // Initialize edit fields
+        setEditHandle(profileData.handle);
+        setEditName(profileData.name);
+        setEditLocation(profileData.location);
+      } catch (err) {
+        console.error(err);
+        setLoadError("Could not load profile. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  /* =============================
+     Question map
+  ============================== */
 
   const questionMap = useMemo(() => {
     const map = new Map<CoffeeQuestionKey, CoffeeQuestion>();
@@ -79,12 +149,11 @@ const ProfilePage: React.FC = () => {
     return map;
   }, []);
 
-  const isOwnProfile = profile.isOwnProfile;
+  const isOwnProfile = profile?.isOwnProfile ?? true;
 
-  /* Image upload refs (used only in edit mode) */
-
-  const coverInputRef = useRef<HTMLInputElement | null>(null);
-  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  /* =============================
+     Image handlers
+  ============================== */
 
   const handleClickCover = () => {
     coverInputRef.current?.click();
@@ -92,12 +161,19 @@ const ProfilePage: React.FC = () => {
 
   const handleChangeCover = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !profile) return;
+
+    // For now we only update the local preview.
+    // TODO: send file to API / storage and store resulting URL.
     const url = URL.createObjectURL(file);
-    setProfile((prev) => ({
-      ...prev,
-      coverImageUrl: url,
-    }));
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            coverImageUrl: url,
+          }
+        : prev
+    );
   };
 
   const handleClickAvatar = () => {
@@ -106,15 +182,23 @@ const ProfilePage: React.FC = () => {
 
   const handleChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !profile) return;
+
+    // Local preview update; integrate with API/upload as needed.
     const url = URL.createObjectURL(file);
-    setProfile((prev) => ({
-      ...prev,
-      avatarUrl: url,
-    }));
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            avatarUrl: url,
+          }
+        : prev
+    );
   };
 
-  /* Coffee profile row handlers */
+  /* =============================
+     Coffee profile row handlers
+  ============================== */
 
   const handleQuestionChange = (rowIndex: number, key: CoffeeQuestionKey) => {
     setRows((prev) =>
@@ -138,9 +222,12 @@ const ProfilePage: React.FC = () => {
     return prev.questionKey !== "";
   };
 
-  /* Edit mode start / save / cancel */
+  /* =============================
+     Edit mode handlers
+  ============================== */
 
   const handleStartEdit = () => {
+    if (!profile) return;
     setEditHandle(profile.handle);
     setEditName(profile.name);
     setEditLocation(profile.location);
@@ -148,8 +235,9 @@ const ProfilePage: React.FC = () => {
     setIsEditing(true);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!profile) return;
 
     const newCoffeeProfile: CoffeeProfileItem[] = rows
       .filter((row) => row.questionKey !== "" && row.answer.trim() !== "")
@@ -166,11 +254,31 @@ const ProfilePage: React.FC = () => {
       coffeeProfile: newCoffeeProfile,
     };
 
-    setProfile(updated);
-    setIsEditing(false);
+    try {
+      // Example API call; change URL/method/body structure for your backend
+      const res = await fetch(`/api/me`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save profile");
+      }
+
+      const savedProfile: Profile = await res.json();
+      setProfile(savedProfile);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      // Fallback: at least update local UI so user doesn’t lose changes
+      setProfile(updated);
+      setIsEditing(false);
+    }
   };
 
   const handleCancelEdit = () => {
+    if (!profile) return;
     setRows(initRowsFromProfile(profile));
     setEditHandle(profile.handle);
     setEditName(profile.name);
@@ -179,18 +287,8 @@ const ProfilePage: React.FC = () => {
   };
 
   /* =============================
-     Coffeemates modal state
+     Coffeemates modal handlers
   ============================== */
-
-  const [coffeemates, setCoffeemates] = useState<CoffeemateUser[]>(() =>
-    MOCK_USERS.filter((u) => u.profile.id !== CURRENT_USER.profile.id).map(
-      (u) => ({
-        id: u.profile.id,
-        handle: u.profile.handle,
-        avatarUrl: u.profile.avatarUrl,
-      })
-    )
-  );
 
   const [isCoffeematesOpen, setIsCoffeematesOpen] = useState(false);
 
@@ -202,27 +300,53 @@ const ProfilePage: React.FC = () => {
     setIsCoffeematesOpen(false);
   };
 
-  const handleRemoveCoffeemate = (id: string) => {
+  const handleRemoveCoffeemate = async (id: string) => {
+    // Optimistic UI update
     setCoffeemates((prev) => prev.filter((mate) => mate.id !== id));
 
-    setProfile((prev) => ({
-      ...prev,
-      stats: {
-        ...prev.stats,
-        coffeemates: Math.max(0, prev.stats.coffeemates - 1),
-      },
-    }));
+    try {
+      // Example API call; adjust URL/method to your backend
+      await fetch(`/api/me/coffeemates/${id}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error(err);
+      // Optional: re-fetch coffeemates from server if needed
+    }
   };
 
-  /* Derived view data */
+  /* =============================
+     Derived view data
+  ============================== */
 
-  const coffeeProfileDisplay = profile.coffeeProfile.map((item) => {
-    const q = questionMap.get(item.questionKey);
-    return {
-      label: q ? q.label : item.questionKey,
-      answer: item.answer,
-    };
-  });
+  const coffeeProfileDisplay =
+    profile?.coffeeProfile?.map((item) => {
+      const q = questionMap.get(item.questionKey);
+      return {
+        label: q ? q.label : item.questionKey,
+        answer: item.answer,
+      };
+    }) ?? [];
+
+  /* =============================
+     Loading / error states
+  ============================== */
+
+  if (isLoading) {
+    return (
+      <div className="profile-page">
+        <div className="profile-loading">Loading profile…</div>
+      </div>
+    );
+  }
+
+  if (loadError || !profile) {
+    return (
+      <div className="profile-page">
+        <div className="profile-error">{loadError ?? "Profile not found."}</div>
+      </div>
+    );
+  }
 
   /* ============================
      VIEW MODE
@@ -270,14 +394,12 @@ const ProfilePage: React.FC = () => {
                 >
                   <span className="profile-stat__label2">Coffeemates</span>
                   <span className="profile-stat__value">
-                    {profile.stats.coffeemates}
+                    {coffeematesCount}
                   </span>
                 </button>
                 <div className="profile-stat">
                   <span className="profile-stat__label1">Post</span>
-                  <span className="profile-stat__value">
-                    {profile.stats.posts}
-                  </span>
+                  <span className="profile-stat__value">{postsCount}</span>
                 </div>
               </div>
             </div>

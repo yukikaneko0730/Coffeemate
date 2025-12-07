@@ -14,9 +14,11 @@ import {
   serverTimestamp,
   doc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 
 import { CURRENT_USER } from "../mocks/mockUsers";
+import hqIcon from "../photo/coffeemateicon.png";
 
 type Chat = {
   id: string;
@@ -25,6 +27,7 @@ type Chat = {
   lastMessage: string;
   time: string; // "HH:MM"
   unreadCount?: number;
+  isHQ?: boolean;
 };
 
 type Message = {
@@ -60,6 +63,11 @@ const formatTime = (date: Date | null): string => {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
+// Coffeemates HQ constants
+const HQ_USER_ID = "OkfA8JuCtZOjZmvtvGkIexDHzy13";
+const HQ_DEFAULT_WELCOME =
+  "Welcome to Coffeemates ☕ Let’s discover cozy cafés together.";
+
 export default function MessagesPage() {
   const { user, loading: authLoading } = useAuth();
   const currentUserProfile = CURRENT_USER.profile; // still using mock profile for name/avatar
@@ -77,33 +85,73 @@ export default function MessagesPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // ==============================
+  // Ensure HQ chat exists for this user
+  // ==============================
+  useEffect(() => {
+    if (!user) return;
+
+    const ensureHQChat = async () => {
+      const chatId = `hq-${user.uid}`;
+      const chatRef = doc(db, "chats", chatId);
+      const snap = await getDoc(chatRef);
+
+      if (!snap.exists()) {
+        // Create a personal 1:1 chat with HQ for this user
+        await setDoc(chatRef, {
+          members: [user.uid, HQ_USER_ID],
+          memberDisplayNames: {
+            [user.uid]: currentUserProfile.name,
+            [HQ_USER_ID]: "Coffeemates HQ",
+          },
+          memberAvatars: {
+            [user.uid]:
+              currentUserProfile.avatarUrl ??
+              "/profiphoto/default-profile.png",
+            [HQ_USER_ID]: hqIcon,
+          },
+          lastMessage: HQ_DEFAULT_WELCOME,
+          lastMessageAt: serverTimestamp(),
+          unreadCounts: {
+            [user.uid]: 0,
+          },
+          isHQ: true,
+        });
+      }
+    };
+
+    void ensureHQChat();
+  }, [user, currentUserProfile.name, currentUserProfile.avatarUrl]);
+
+  // ==============================
   // Subscribe to chats for current user
   // ==============================
   useEffect(() => {
     if (!user) return;
 
-    // Expected chat document shape (example):
+    // Expected chat document shape:
     // {
-    //   members: string[]; // [miaUid, hqUid]
+    //   members: string[];
     //   memberDisplayNames: { [uid: string]: string };
     //   memberAvatars: { [uid: string]: string };
     //   lastMessage: string;
     //   lastMessageAt: Timestamp;
     //   unreadCounts: { [uid: string]: number };
+    //   isHQ?: boolean;
     // }
-    const q = query(
+    const qChats = query(
       collection(db, "chats"),
       where("members", "array-contains", user.uid),
       orderBy("lastMessageAt", "desc")
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      const list: Chat[] = snap.docs.map((d) => {
+    const unsub = onSnapshot(qChats, (snap) => {
+      const rawList: Chat[] = snap.docs.map((d) => {
         const data = d.data() as any;
         const members: string[] = data.members ?? [];
 
+        // Pick "other" person for 1:1 chat display
         const otherId =
-          members.find((m) => m !== user.uid) ?? user.uid; // fallback to self if 1:1 info not set
+          members.find((m) => m !== user.uid) ?? HQ_USER_ID; // fallback
 
         const nameFromDoc =
           data.memberDisplayNames?.[otherId] ??
@@ -121,21 +169,30 @@ export default function MessagesPage() {
             ? data.unreadCounts[user.uid]
             : undefined;
 
+        const isHQ = !!data.isHQ || d.id.startsWith("hq-");
+
         return {
           id: d.id,
-          name: nameFromDoc,
-          avatar: avatarFromDoc,
+          name: isHQ ? "Coffeemates HQ" : nameFromDoc,
+          avatar: isHQ ? hqIcon : avatarFromDoc,
           lastMessage: data.lastMessage ?? "",
           time: formatTime(lastDate),
           unreadCount,
+          isHQ,
         };
       });
 
-      setChatList(list);
+      // Pin HQ chat(s) at top, keep the rest in Firestore order
+      const hqChats = rawList.filter((c) => c.isHQ);
+      const otherChats = rawList.filter((c) => !c.isHQ);
 
-      // If nothing selected yet, select the first chat
-      if (!selectedChatId && list.length > 0) {
-        setSelectedChatId(list[0].id);
+      const ordered = [...hqChats, ...otherChats];
+
+      setChatList(ordered);
+
+      // If nothing selected yet, select the first chat (HQ will be first)
+      if (!selectedChatId && ordered.length > 0) {
+        setSelectedChatId(ordered[0].id);
       }
     });
 
@@ -157,9 +214,9 @@ export default function MessagesPage() {
     //   readBy: string[];
     // }
     const messagesRef = collection(db, "chats", selectedChatId, "messages");
-    const q = query(messagesRef, orderBy("createdAt", "asc"));
+    const qMessages = query(messagesRef, orderBy("createdAt", "asc"));
 
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(qMessages, (snap) => {
       const list: Message[] = snap.docs.map((d) => {
         const data = d.data() as any;
         const createdAt = data.createdAt?.toDate
@@ -353,7 +410,7 @@ export default function MessagesPage() {
           />
         </div>
 
-        {/* Chat list */}
+        {/* Chat list (HQ is always first because of isHQ) */}
         <div className="cm-chat-list">
           {filteredChats.map((chat) => (
             <button

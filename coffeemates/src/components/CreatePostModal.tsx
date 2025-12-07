@@ -1,7 +1,7 @@
 // src/components/CreatePostModal.tsx
 import React, { useState } from "react";
 import type { CreatePostFormValues } from "../types/postForm";
-import "../styles/CreatePostModal.css";
+import "../styles/PostCreatePage.css";
 
 type CreatePostModalProps = {
   isOpen: boolean;

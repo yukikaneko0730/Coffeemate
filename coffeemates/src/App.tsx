@@ -20,33 +20,64 @@ import { CURRENT_USER } from "./mocks/mockUsers";
 import { db } from "./firebase/firebaseConfig";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
+import { useAuth } from "./contexts/AuthContext";
+
 import "./styles/AppShell.css";
 
 const App: React.FC = () => {
   const location = useLocation();
+  const { user, loading } = useAuth();
+
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   const openPostModal = () => setIsPostModalOpen(true);
   const closePostModal = () => setIsPostModalOpen(false);
 
+  const isAuthRoute =
+    location.pathname === "/login" || location.pathname === "/signup";
+
+  // ----- auth loading -----
+  if (loading) {
+    return (
+      <div className="app-shell app-shell--center">
+        <p>Checking your coffeemates account...</p>
+      </div>
+    );
+  }
+
+  // ----- not logged in → only login/signup -----
+  if (!user || isAuthRoute) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    );
+  }
+
+  // ----- logged in: create post handler -----
   const handleCreatePost = async (values: CreatePostFormValues) => {
-    const author = CURRENT_USER.profile;
+    const authorProfile = CURRENT_USER.profile; // 今はモックで表示
 
     try {
       await addDoc(collection(db, "posts"), {
-        authorId: author.id,
-        authorName: author.name,
-        authorHandle: author.handle,
-        authorAvatarUrl: author.avatarUrl ?? null,
+        authorId: user.uid,
+        authorName: authorProfile.name,
+        authorAvatarUrl: authorProfile.avatarUrl ?? "",
         cafeName: values.cafeName,
         text: values.text,
         rating: values.rating,
+        googlePlaceId: values.googlePlaceId ?? "",
+
         likeCount: 0,
-        commentCount: 0,
+        isLikedByCurrentUser: false,
+        isSavedByCurrentUser: false,
+        comments: [],
+
         createdAt: serverTimestamp(),
       });
 
-      // optional: close modal here if成功時に閉じたい
       closePostModal();
     } catch (err) {
       console.error("Failed to create post:", err);
@@ -54,18 +85,7 @@ const App: React.FC = () => {
     }
   };
 
-  const isAuthRoute =
-    location.pathname === "/login" || location.pathname === "/signup";
-
-  if (isAuthRoute) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-      </Routes>
-    );
-  }
-
+  // ----- main app shell -----
   return (
     <div className="app-shell">
       <aside className="app-shell__sidebar">

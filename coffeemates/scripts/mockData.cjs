@@ -3,7 +3,7 @@
 
 /** @typedef {{ questionKey: string, answer: string }} CoffeeProfileItem */
 
-/** @type {{ 
+/** @type {{
  *   id: string;
  *   handle: string;
  *   name: string;
@@ -15,6 +15,7 @@
  *   coffeeProfile: CoffeeProfileItem[];
  *   isOwnProfile: boolean;
  *   coffeemateIds?: string[];
+ *   email?: string;
  *   password?: string;
  * }[]} */
 const MOCK_USERS = [
@@ -24,7 +25,6 @@ const MOCK_USERS = [
     handle: "@mariecoffeelove",
     name: "Marie",
     location: "Berlin, Germany",
-    // You can store public image URLs here later if you deploy assets
     coverImageUrl: "",
     avatarUrl: "",
     stats: {
@@ -44,6 +44,7 @@ const MOCK_USERS = [
     ],
     isOwnProfile: false,
     coffeemateIds: ["user_alex", "user_mia"],
+    email: "marie@coffeemates.test",
     password: "coffee-marie",
   },
 
@@ -75,6 +76,7 @@ const MOCK_USERS = [
     ],
     isOwnProfile: false,
     coffeemateIds: ["user_marie", "user_mia"],
+    email: "alex@coffeemates.test",
     password: "coffee-alex",
   },
 
@@ -103,6 +105,7 @@ const MOCK_USERS = [
     ],
     isOwnProfile: true,
     coffeemateIds: ["user_marie", "user_alex"],
+    email: "mia@coffeemates.test",
     password: "coffee-mia",
   },
 
@@ -140,7 +143,131 @@ const MOCK_USERS = [
     ],
     isOwnProfile: false,
     coffeemateIds: [],
+    email: "hq@coffeemates.test",
     password: "coffee-hq",
+  },
+
+  // ============  User 5: Lena (Berlin)  ============
+  {
+    id: "user_lena",
+    handle: "@lenalatte",
+    name: "Lena",
+    location: "Berlin, Germany",
+    coverImageUrl: "",
+    avatarUrl: "",
+    stats: {
+      coffeemates: 12,
+      posts: 2,
+    },
+    bio: "UX designer who judges cafés by their playlists and mugs.",
+    coffeeProfile: [
+      {
+        questionKey: "favoriteTypeOfCoffee",
+        answer: "Oat milk latte",
+      },
+      {
+        questionKey: "favoriteCafeInArea",
+        answer: "Father Carpenter",
+      },
+      {
+        questionKey: "coffeeVibe",
+        answer: "Calm but not too quiet",
+      },
+      {
+        questionKey: "favoriteBeanOrigin",
+        answer: "Guatemala",
+      },
+      {
+        questionKey: "ownedCafeIdea",
+        answer: "Laptop-friendly café with plants and huge communal table.",
+      },
+    ],
+    isOwnProfile: false,
+    coffeemateIds: ["user_marie", "user_mia"],
+    email: "lena@coffeemates.test",
+    password: "coffee-lena",
+  },
+
+  // ============  User 6: Jonas (Berlin)  ============
+  {
+    id: "user_jonas",
+    handle: "@jonaspourover",
+    name: "Jonas",
+    location: "Berlin, Germany",
+    coverImageUrl: "",
+    avatarUrl: "",
+    stats: {
+      coffeemates: 9,
+      posts: 2,
+    },
+    bio: "Software dev who always brings his own beans on trips.",
+    coffeeProfile: [
+      {
+        questionKey: "favoriteTypeOfCoffee",
+        answer: "V60 pour-over",
+      },
+      {
+        questionKey: "favoriteCafeInArea",
+        answer: "The Barn",
+      },
+      {
+        questionKey: "coffeeVibe",
+        answer: "Industrial and focused",
+      },
+      {
+        questionKey: "favoriteBeanOrigin",
+        answer: "Kenya",
+      },
+      {
+        questionKey: "ownedCafeIdea",
+        answer: "Tiny brew bar with just 4 seats and no Wi-Fi.",
+      },
+    ],
+    isOwnProfile: false,
+    coffeemateIds: ["user_alex", "user_mia"],
+    email: "jonas@coffeemates.test",
+    password: "coffee-jonas",
+  },
+
+  // ============  User 7: Sara (Berlin)  ============
+  {
+    id: "user_sara",
+    handle: "@saracortado",
+    name: "Sara",
+    location: "Berlin, Germany",
+    coverImageUrl: "",
+    avatarUrl: "",
+    stats: {
+      coffeemates: 21,
+      posts: 2,
+    },
+    bio: "Freelance illustrator. Sketching people in cafés since 2018.",
+    coffeeProfile: [
+      {
+        questionKey: "favoriteTypeOfCoffee",
+        answer: "Cortado",
+      },
+      {
+        questionKey: "favoriteCafeInArea",
+        answer: "Bonanza Coffee Roasters",
+      },
+      {
+        questionKey: "coffeeVibe",
+        answer: "Lively and creative",
+      },
+      {
+        questionKey: "favoriteBeanOrigin",
+        answer: "Colombia",
+      },
+      {
+        questionKey: "ownedCafeIdea",
+        answer: "Gallery café where walls change every month.",
+      },
+    ],
+    isOwnProfile: false,
+    coffeemateIds: ["user_marie", "user_lena"],
+    email: "sara@coffeemates.test",
+    password: "coffee-sara",
   },
 ];
 
@@ -275,6 +402,99 @@ const ALL_POSTS = [
     rating: 4.6,
     googlePlaceId: "",
     likeCount: 77,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+
+  // Lena posts
+  {
+    id: "lena-post-1",
+    authorId: "user_lena",
+    authorName: "Lena",
+    authorAvatarUrl: "",
+    cafeName: "Father Carpenter",
+    text: "Sat in the courtyard with an oat flat white and my Figma file 💻.",
+    rating: 4.6,
+    googlePlaceId: "",
+    likeCount: 52,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+  {
+    id: "lena-post-2",
+    authorId: "user_lena",
+    authorName: "Lena",
+    authorAvatarUrl: "",
+    cafeName: "Benchmark Coffee",
+    text: "Their pastries are dangerous. Came for coffee, left with 3 croissants.",
+    rating: 4.4,
+    googlePlaceId: "",
+    likeCount: 33,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+
+  // Jonas posts
+  {
+    id: "jonas-post-1",
+    authorId: "user_jonas",
+    authorName: "Jonas",
+    authorAvatarUrl: "",
+    cafeName: "The Barn Mitte",
+    text:
+      "Washed Kenyan on V60 — super clean sweetness, almost like blackcurrant juice.",
+    rating: 4.8,
+    googlePlaceId: "",
+    likeCount: 41,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+  {
+    id: "jonas-post-2",
+    authorId: "user_jonas",
+    authorName: "Jonas",
+    authorAvatarUrl: "",
+    cafeName: "19grams",
+    text: "Espresso flight was fun, would definitely do again.",
+    rating: 4.5,
+    googlePlaceId: "",
+    likeCount: 29,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+
+  // Sara posts
+  {
+    id: "sara-post-1",
+    authorId: "user_sara",
+    authorName: "Sara",
+    authorAvatarUrl: "",
+    cafeName: "Bonanza Coffee Roasters",
+    text:
+      "Sketched half the café while sipping a cortado. Light is perfect near the window.",
+    rating: 4.7,
+    googlePlaceId: "",
+    likeCount: 58,
+    isLikedByCurrentUser: false,
+    isSavedByCurrentUser: false,
+    comments: [],
+  },
+  {
+    id: "sara-post-2",
+    authorId: "user_sara",
+    authorName: "Sara",
+    authorAvatarUrl: "",
+    cafeName: "No Fire No Glory",
+    text:
+      "Friendly staff + smooth espresso. Also their cups are really cute.",
+    rating: 4.5,
+    googlePlaceId: "",
+    likeCount: 36,
     isLikedByCurrentUser: false,
     isSavedByCurrentUser: false,
     comments: [],

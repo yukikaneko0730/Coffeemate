@@ -3,11 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import BerlinMapPlaceholder from "../components/BerlinMapPlaceholder";
 import SuggestionCard from "../components/SuggestionCard";
 import FeedPostCard from "../components/FeedPostCard";
+
 import { mockCafes } from "../mocks/cafes";
-import { mockPosts } from "../mocks/posts";
 import type { Cafe } from "../types/cafe";
 import type { FeedPost } from "../types/feedPost";
+
 import "../styles/HomePage.css";
+
+import { db } from "../firebase/firebaseConfig";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { CURRENT_USER } from "../mocks/mockUsers";
 
 type LatLng = {
   lat: number;
@@ -29,12 +34,19 @@ const shuffle = <T,>(items: T[]): T[] => {
 const HomePage = () => {
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("friends");
-  const [posts, setPosts] = useState<FeedPost[]>(mockPosts);
 
-  // Just for the visual of the search bar (no heavy logic yet)
+  // Firestore から取ってくる FeedPost 一覧
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
+  // simple friend-search UI 用
   const [friendQuery, setFriendQuery] = useState("");
 
-  // ブラウザの現在地だけ取得（UI のチップ表示に使う）
+  // ===== 現在ログイン中ユーザー（モック情報から coffeemateIds を使う） =====
+  const currentProfile = CURRENT_USER.profile;
+  const coffeemateIds = currentProfile.coffeemateIds ?? [];
+
+  // ===== ブラウザの現在地（Map セクションの chip 用） =====
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -52,7 +64,60 @@ const HomePage = () => {
     );
   }, []);
 
-  // Cafes from mocks
+  // ===== Firestore から posts 購読 =====
+  useEffect(() => {
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+    const unsub = onSnapshot(
+      q,
+      (snapshot) => {
+        const next: FeedPost[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as any;
+
+          const createdAt =
+            data.createdAt?.toDate && typeof data.createdAt.toDate === "function"
+              ? data.createdAt.toDate()
+              : null;
+
+          // 「友だち投稿」かどうか判定（自分 + coffeemateIds）
+          const authorId: string = data.authorId ?? "";
+          const isFriend =
+            authorId === currentProfile.id || coffeemateIds.includes(authorId);
+
+          return {
+            id: docSnap.id,
+            authorId,
+            authorName: data.authorName ?? "Unknown coffeemate",
+            authorAvatarUrl: data.authorAvatarUrl ?? "",
+            cafeName: data.cafeName ?? "",
+            text: data.text ?? "",
+            rating: Number(data.rating ?? 0),
+            googlePlaceId: data.googlePlaceId ?? "",
+
+            likeCount: Number(data.likeCount ?? 0),
+            isLikedByCurrentUser: !!data.isLikedByCurrentUser,
+            isSavedByCurrentUser: !!data.isSavedByCurrentUser,
+
+            comments: Array.isArray(data.comments) ? data.comments : [],
+
+            createdAt,
+            isFriend,
+          } as FeedPost;
+        });
+
+        setPosts(next);
+        setLoadingPosts(false);
+      },
+      (err) => {
+        console.error("Failed to fetch posts from Firestore:", err);
+        setLoadingPosts(false);
+      }
+    );
+
+    return () => unsub();
+  }, [coffeemateIds, currentProfile.id]);
+
+  // ===== Cafes (Suggestion 用はモックのまま) =====
   const cafes: Cafe[] = mockCafes;
 
   // Always up to 3 items for “Suggestions for you”
@@ -60,7 +125,6 @@ const HomePage = () => {
     if (cafes.length >= 3) {
       return cafes.slice(0, 3);
     }
-    // If less than 3, loop through existing ones to fill 3 slots
     const result: Cafe[] = [];
     for (let i = 0; i < 3 && cafes.length > 0; i += 1) {
       result.push(cafes[i % cafes.length]);
@@ -68,9 +132,12 @@ const HomePage = () => {
     return result;
   }, [cafes]);
 
-  // Posts from mocks (friend / others)
-  const friendPosts: FeedPost[] = posts.filter((p) => p.isFriend);
-  const otherPostsPool: FeedPost[] = posts.filter((p) => !p.isFriend);
+  // ===== Friend / Others 分け =====
+  const friendPosts: FeedPost[] = posts.filter(
+    (p: any) => p.isFriend && p.authorName.toLowerCase().includes(friendQuery.toLowerCase())
+  );
+
+  const otherPostsPool: FeedPost[] = posts.filter((p: any) => !p.isFriend);
 
   const visibleOtherPosts = useMemo(
     () => shuffle(otherPostsPool),
@@ -80,8 +147,7 @@ const HomePage = () => {
   const visiblePosts: FeedPost[] =
     activeTab === "friends" ? friendPosts : visibleOtherPosts;
 
-  // ==== Actions for FeedPostCard ====
-
+  // ===== FeedPostCard へのコールバック群（今はローカル状態だけ更新） =====
   const handleDeleteComment = (postId: string, commentId: string) => {
     setPosts((prev) =>
       prev.map((post) =>
@@ -96,7 +162,7 @@ const HomePage = () => {
   };
 
   const handleOpenChat = (post: FeedPost) => {
-    // Later we will hook this into react-router
+    // TODO: ここは /messages に遷移して、そのユーザーとのチャットを開くようにする
     console.log("Open chat with:", post.authorName);
     alert(`Chat with ${post.authorName} (routing coming soon)`);
   };
@@ -110,6 +176,7 @@ const HomePage = () => {
   };
 
   const handleToggleSave = (postId: string) => {
+    // savedPosts は localStorage 管理なので、ここは UI 用にだけ反転させる
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -143,6 +210,15 @@ const HomePage = () => {
     }
   };
 
+  // ===== ローディング / 投稿ゼロのときの表示 =====
+  if (loadingPosts) {
+    return (
+      <main className="home-main home-main--center">
+        <p>Loading your coffeemates feed…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="home-main">
       {/* Hero / heading */}
@@ -156,7 +232,7 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* 1. Map (full width, now placeholder) */}
+      {/* 1. Map */}
       <section className="home-section home-map-section">
         <div className="home-section-header">
           <h2 className="home-section-title">Map</h2>
@@ -168,7 +244,7 @@ const HomePage = () => {
         <BerlinMapPlaceholder />
       </section>
 
-      {/* 2. Suggestions for you (flat, 3 cards horizontal) */}
+      {/* 2. Suggestions for you */}
       <section className="home-suggestions-section">
         <div className="home-suggestions-header">
           <h2 className="home-section-title">Suggestions for you</h2>
@@ -184,7 +260,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 3. Simple friend search bar (like Figma) */}
+      {/* 3. Friend search bar */}
       <section className="home-search-section">
         <p className="home-search-label">Find Your Friend:</p>
 
@@ -231,17 +307,25 @@ const HomePage = () => {
           key={activeTab}
           className="home-post-list home-post-list--animated"
         >
-          {visiblePosts.map((post) => (
-            <FeedPostCard
-              key={post.id}
-              post={post}
-              onDeleteComment={handleDeleteComment}
-              onOpenChat={handleOpenChat}
-              onOpenDirections={handleOpenDirections}
-              onToggleSave={handleToggleSave}
-              onShare={handleShare}
-            />
-          ))}
+          {visiblePosts.length === 0 ? (
+            <p className="home-empty-text">
+              {activeTab === "friends"
+                ? "No posts from your coffeemates yet. Maybe post the first one ☕"
+                : "No other posts yet."}
+            </p>
+          ) : (
+            visiblePosts.map((post) => (
+              <FeedPostCard
+                key={post.id}
+                post={post}
+                onDeleteComment={handleDeleteComment}
+                onOpenChat={handleOpenChat}
+                onOpenDirections={handleOpenDirections}
+                onToggleSave={handleToggleSave}
+                onShare={handleShare}
+              />
+            ))
+          )}
         </div>
       </section>
     </main>
